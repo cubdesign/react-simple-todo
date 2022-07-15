@@ -1,4 +1,7 @@
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
 import { useState } from "react";
+import Button from "@mui/material/Button";
 type FormTodoProps = {
   addTodo: (text: string) => void;
 };
@@ -12,14 +15,29 @@ const FormTodo: React.FC<FormTodoProps> = ({ addTodo }) => {
     setText("");
   };
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        gap: "8px",
+      }}
+    >
+      <TextField
+        variant="standard"
         value={text}
+        placeholder="Add a todo"
         onChange={(e) => setText(e.target.value.trim())}
+        sx={{
+          width: "100%",
+        }}
       />
-      <button type="submit">add</button>
-    </form>
+      <Button type="submit" variant="contained">
+        add
+      </Button>
+    </Box>
   );
 };
 export default FormTodo;

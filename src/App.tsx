@@ -1,3 +1,4 @@
+import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
@@ -40,17 +41,19 @@ function App() {
     <div>
       <Container>
         <Typography variant="h1">todo</Typography>
-        <FormTodo addTodo={addTodo} />
-        <div>
-          {todoList.map((todo) => (
-            <Todo
-              key={todo.id}
-              todo={todo}
-              markDone={markDone}
-              removeTodo={removeTodo}
-            />
-          ))}
-        </div>
+        <Stack spacing={4}>
+          <FormTodo addTodo={addTodo} />
+          <Stack spacing={2}>
+            {todoList.map((todo) => (
+              <Todo
+                key={todo.id}
+                todo={todo}
+                markDone={markDone}
+                removeTodo={removeTodo}
+              />
+            ))}
+          </Stack>
+        </Stack>
       </Container>
     </div>
   );
