@@ -5,6 +5,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import FormTodo from "./components/FormTodo";
 import Todo from "./components/Todo";
+import GlobalStyles from "@mui/material/GlobalStyles";
 
 export type TodoItem = {
   id: string;
@@ -39,10 +40,22 @@ function App() {
 
   return (
     <div>
+      <GlobalStyles
+        styles={{
+          body: {
+            backgroundColor: "#fafafa",
+          },
+        }}
+      />
       <Container>
         <Typography variant="h1">todo</Typography>
-        <Stack spacing={4}>
-          <FormTodo addTodo={addTodo} />
+        <FormTodo addTodo={addTodo} />
+        <Stack
+          spacing={4}
+          sx={{
+            marginTop: 2,
+          }}
+        >
           <Stack spacing={2}>
             {todoList.map((todo) => (
               <Todo
