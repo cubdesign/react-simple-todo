@@ -1,18 +1,18 @@
 import CardContent from "@mui/material/CardContent";
 import IconButton from "@mui/material/IconButton";
 import Card from "@mui/material/Card";
-import { TodoItem } from "../App";
+import { TodoItem } from "../Todo";
 import CardActions from "@mui/material/CardActions";
 import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-type TodoProps = {
+type TodoListProps = {
   todo: TodoItem;
   markDone: (id: string) => void;
   removeTodo: (id: string) => void;
 };
-const Todo: React.FC<TodoProps> = ({ todo, markDone, removeTodo }) => {
+const TodoList: React.FC<TodoListProps> = ({ todo, markDone, removeTodo }) => {
   return (
     <Card
       sx={{
@@ -42,4 +42,4 @@ const Todo: React.FC<TodoProps> = ({ todo, markDone, removeTodo }) => {
     </Card>
   );
 };
-export default Todo;
+export default TodoList;

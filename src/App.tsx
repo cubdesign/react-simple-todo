@@ -1,75 +1,20 @@
-import Stack from "@mui/material/Stack";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import FormTodo from "./components/FormTodo";
-import Todo from "./components/Todo";
-import GlobalStyles from "@mui/material/GlobalStyles";
+import { Route, Routes } from "react-router-dom";
+import Login from "./Login";
+import Register from "./Register";
+import Todo from "./Todo";
+import "./firebaseConfig";
+import Layout from "./components/Layout";
 
-export type TodoItem = {
-  id: string;
-  text: string;
-  done: boolean;
-};
-
-function App() {
-  const [todoList, setTodoList] = useState<TodoItem[]>([
-    {
-      id: uuidv4(),
-      text: "デプロイする",
-      done: false,
-    },
-  ]);
-  const addTodo = (text: string): void => {
-    setTodoList([{ id: uuidv4(), text: text, done: false }, ...todoList]);
-  };
-  const markDone = (id: string): void => {
-    setTodoList(
-      todoList.map((todo) => {
-        if (todo.id === id) {
-          return { ...todo, done: !todo.done };
-        }
-        return todo;
-      })
-    );
-  };
-  const removeTodo = (id: string): void => {
-    setTodoList(todoList.filter((todo) => todo.id !== id));
-  };
-
+const App = () => {
   return (
-    <div>
-      <GlobalStyles
-        styles={{
-          body: {
-            backgroundColor: "#fafafa",
-          },
-        }}
-      />
-      <Container>
-        <Typography variant="h1">todo</Typography>
-        <FormTodo addTodo={addTodo} />
-        <Stack
-          spacing={4}
-          sx={{
-            marginTop: 2,
-          }}
-        >
-          <Stack spacing={2}>
-            {todoList.map((todo) => (
-              <Todo
-                key={todo.id}
-                todo={todo}
-                markDone={markDone}
-                removeTodo={removeTodo}
-              />
-            ))}
-          </Stack>
-        </Stack>
-      </Container>
-    </div>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<Todo />} />
+      </Route>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+    </Routes>
   );
-}
+};
 
 export default App;
