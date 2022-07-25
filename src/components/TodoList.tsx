@@ -9,8 +9,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 type TodoListProps = {
   todo: TodoItem;
-  markDone: (id: string) => void;
-  removeTodo: (id: string) => void;
+  markDone: (id: string, done: boolean) => Promise<boolean>;
+  removeTodo: (id: string) => Promise<boolean>;
 };
 const TodoList: React.FC<TodoListProps> = ({ todo, markDone, removeTodo }) => {
   return (
@@ -22,7 +22,10 @@ const TodoList: React.FC<TodoListProps> = ({ todo, markDone, removeTodo }) => {
       }}
     >
       <CardActions>
-        <Checkbox onChange={() => markDone(todo.id)} checked={todo.done} />
+        <Checkbox
+          onChange={() => markDone(todo.id, !todo.done)}
+          checked={todo.done}
+        />
       </CardActions>
       <CardContent
         sx={{

@@ -1,11 +1,20 @@
 import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useEffect, useState } from "react";
 import FormTodo from "./components/FormTodo";
 import TodoList from "./components/TodoList";
 import GlobalStyles from "@mui/material/GlobalStyles";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  updateDoc,
+} from "firebase/firestore";
+import { async } from "@firebase/util";
 
 export type TodoItem = {
   id: string;
@@ -14,28 +23,42 @@ export type TodoItem = {
 };
 
 const Todo = () => {
-  const [todoList, setTodoList] = useState<TodoItem[]>([
-    {
-      id: uuidv4(),
-      text: "デプロイする",
-      done: false,
-    },
-  ]);
-  const addTodo = (text: string): void => {
-    setTodoList([{ id: uuidv4(), text: text, done: false }, ...todoList]);
+  const db = getFirestore();
+  const [todoList, setTodoList] = useState<TodoItem[]>([]);
+
+  const loadTodos = async (): Promise<boolean> => {
+    const todos: TodoItem[] = [];
+    const querySnapshot = await getDocs(collection(db, "todos"));
+    querySnapshot.forEach((doc) => {
+      todos.push({
+        id: doc.id,
+        text: doc.data().text,
+        done: doc.data().done,
+      });
+    });
+    setTodoList(todos);
+    return true;
   };
-  const markDone = (id: string): void => {
-    setTodoList(
-      todoList.map((todo) => {
-        if (todo.id === id) {
-          return { ...todo, done: !todo.done };
-        }
-        return todo;
-      })
-    );
+
+  useEffect(() => {
+    loadTodos();
+  }, []);
+
+  const addTodo = async (text: string): Promise<boolean> => {
+    await addDoc(collection(db, "todos"), { text, done: false });
+    await loadTodos();
+    return true;
   };
-  const removeTodo = (id: string): void => {
-    setTodoList(todoList.filter((todo) => todo.id !== id));
+
+  const markDone = async (id: string, done: boolean): Promise<boolean> => {
+    await updateDoc(doc(db, "todos", id), { done });
+    await loadTodos();
+    return true;
+  };
+  const removeTodo = async (id: string): Promise<boolean> => {
+    await deleteDoc(doc(db, "todos", id));
+    await loadTodos();
+    return true;
   };
 
   return (
