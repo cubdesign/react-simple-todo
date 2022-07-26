@@ -12,7 +12,10 @@ import {
   doc,
   getDocs,
   getFirestore,
+  orderBy,
   query,
+  serverTimestamp,
+  Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -23,6 +26,7 @@ export type TodoItem = {
   id: string;
   text: string;
   done: boolean;
+  createdAt: Date;
 };
 
 const Todo = () => {
@@ -34,13 +38,18 @@ const Todo = () => {
 
   const loadTodos = async (user: User): Promise<boolean> => {
     const todos: TodoItem[] = [];
-    const q = query(collection(db, "todos"), where("uuid", "==", user.uid));
+    const q = query(
+      collection(db, "todos"),
+      where("uuid", "==", user.uid),
+      orderBy("createdAt", "desc")
+    );
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       todos.push({
         id: doc.id,
         text: doc.data().text,
         done: doc.data().done,
+        createdAt: (doc.data().createdAt as Timestamp)?.toDate(),
       });
     });
     setTodoList(todos);
@@ -65,6 +74,7 @@ const Todo = () => {
       uuid: user!.uid,
       text,
       done: false,
+      createdAt: serverTimestamp(),
     });
     await loadTodos(user!);
     return true;
