@@ -3,7 +3,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 import FormTodo from "./components/FormTodo";
-import TodoList from "./components/TodoList";
+import TodoBar from "./components/TodoList";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import {
   addDoc,
@@ -111,7 +111,7 @@ const Todo = () => {
         >
           <Stack spacing={2}>
             {todoList.map((todo) => (
-              <TodoList
+              <TodoBar
                 key={todo.id}
                 todo={todo}
                 markDone={markDone}

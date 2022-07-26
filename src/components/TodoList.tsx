@@ -7,12 +7,12 @@ import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-type TodoListProps = {
+type TodoBarProps = {
   todo: TodoItem;
   markDone: (id: string, done: boolean) => Promise<boolean>;
   removeTodo: (id: string) => Promise<boolean>;
 };
-const TodoList: React.FC<TodoListProps> = ({ todo, markDone, removeTodo }) => {
+const TodoBar: React.FC<TodoBarProps> = ({ todo, markDone, removeTodo }) => {
   return (
     <Card
       sx={{
@@ -45,4 +45,4 @@ const TodoList: React.FC<TodoListProps> = ({ todo, markDone, removeTodo }) => {
     </Card>
   );
 };
-export default TodoList;
+export default TodoBar;

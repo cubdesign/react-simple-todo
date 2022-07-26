@@ -10,8 +10,9 @@ const FormTodo: React.FC<FormTodoProps> = ({ addTodo }) => {
   const [text, setText] = useState("");
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (text.length === 0) return;
-    addTodo(text);
+    const trimmedText = text.trim();
+    if (trimmedText.length === 0) return;
+    addTodo(trimmedText);
     setText("");
   };
   return (
@@ -29,7 +30,7 @@ const FormTodo: React.FC<FormTodoProps> = ({ addTodo }) => {
         variant="standard"
         value={text}
         placeholder="Add a todo"
-        onChange={(e) => setText(e.target.value.trim())}
+        onChange={(e) => setText(e.target.value)}
         sx={{
           width: "100%",
         }}
