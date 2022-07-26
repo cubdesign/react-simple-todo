@@ -12,9 +12,12 @@ import {
   doc,
   getDocs,
   getFirestore,
+  query,
   updateDoc,
+  where,
 } from "firebase/firestore";
-import { async } from "@firebase/util";
+import { getAuth, User } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 export type TodoItem = {
   id: string;
@@ -23,12 +26,16 @@ export type TodoItem = {
 };
 
 const Todo = () => {
+  const auth = getAuth();
   const db = getFirestore();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
   const [todoList, setTodoList] = useState<TodoItem[]>([]);
 
-  const loadTodos = async (): Promise<boolean> => {
+  const loadTodos = async (user: User): Promise<boolean> => {
     const todos: TodoItem[] = [];
-    const querySnapshot = await getDocs(collection(db, "todos"));
+    const q = query(collection(db, "todos"), where("uuid", "==", user.uid));
+    const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       todos.push({
         id: doc.id,
@@ -41,23 +48,36 @@ const Todo = () => {
   };
 
   useEffect(() => {
-    loadTodos();
+    const unSubscription = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        navigate("/login");
+      }
+      setUser(user!);
+      loadTodos(user!);
+    });
+    return () => {
+      unSubscription();
+    };
   }, []);
 
   const addTodo = async (text: string): Promise<boolean> => {
-    await addDoc(collection(db, "todos"), { text, done: false });
-    await loadTodos();
+    await addDoc(collection(db, "todos"), {
+      uuid: user!.uid,
+      text,
+      done: false,
+    });
+    await loadTodos(user!);
     return true;
   };
 
   const markDone = async (id: string, done: boolean): Promise<boolean> => {
     await updateDoc(doc(db, "todos", id), { done });
-    await loadTodos();
+    await loadTodos(user!);
     return true;
   };
   const removeTodo = async (id: string): Promise<boolean> => {
     await deleteDoc(doc(db, "todos", id));
-    await loadTodos();
+    await loadTodos(user!);
     return true;
   };
 
