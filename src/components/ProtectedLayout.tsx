@@ -4,7 +4,6 @@ import Footer from "./Footer";
 import Header from "./Header";
 const ProtectedLayout = () => {
   const { user } = useAuthUserContext();
-
   if (!user) {
     return <Navigate to="/login" />;
   }

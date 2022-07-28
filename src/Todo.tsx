@@ -55,10 +55,8 @@ const Todo = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      loadTodos();
-    }
-  }, [user]);
+    loadTodos();
+  }, []);
 
   const addTodo = async (text: string): Promise<boolean> => {
     await addDoc(collection(db, "todos"), {
