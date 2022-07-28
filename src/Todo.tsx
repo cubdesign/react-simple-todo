@@ -19,8 +19,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { getAuth, User } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { useAuthUserContext } from "./providers/AuthUser";
 
 export type TodoItem = {
   id: string;
@@ -30,17 +29,16 @@ export type TodoItem = {
 };
 
 const Todo = () => {
-  const auth = getAuth();
   const db = getFirestore();
-  const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
   const [todoList, setTodoList] = useState<TodoItem[]>([]);
 
-  const loadTodos = async (user: User): Promise<boolean> => {
+  const { user } = useAuthUserContext();
+
+  const loadTodos = async (): Promise<boolean> => {
     const todos: TodoItem[] = [];
     const q = query(
       collection(db, "todos"),
-      where("uuid", "==", user.uid),
+      where("uuid", "==", user!.uid),
       orderBy("createdAt", "desc")
     );
     const querySnapshot = await getDocs(q);
@@ -57,17 +55,10 @@ const Todo = () => {
   };
 
   useEffect(() => {
-    const unSubscription = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        navigate("/login");
-      }
-      setUser(user!);
-      loadTodos(user!);
-    });
-    return () => {
-      unSubscription();
-    };
-  }, []);
+    if (user) {
+      loadTodos();
+    }
+  }, [user]);
 
   const addTodo = async (text: string): Promise<boolean> => {
     await addDoc(collection(db, "todos"), {
@@ -76,18 +67,18 @@ const Todo = () => {
       done: false,
       createdAt: serverTimestamp(),
     });
-    await loadTodos(user!);
+    await loadTodos();
     return true;
   };
 
   const markDone = async (id: string, done: boolean): Promise<boolean> => {
     await updateDoc(doc(db, "todos", id), { done });
-    await loadTodos(user!);
+    await loadTodos();
     return true;
   };
   const removeTodo = async (id: string): Promise<boolean> => {
     await deleteDoc(doc(db, "todos", id));
-    await loadTodos(user!);
+    await loadTodos();
     return true;
   };
 

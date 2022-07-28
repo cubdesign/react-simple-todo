@@ -1,11 +1,17 @@
 import FormControl from "@mui/material/FormControl";
 import Box from "@mui/material/Box";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
-import { Auth, getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import {
+  Auth,
+  getAuth,
+  createUserWithEmailAndPassword,
+  UserCredential,
+} from "firebase/auth";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useAuthUserContext } from "./providers/AuthUser";
 
 const Register = () => {
   const auth: Auth = getAuth();
@@ -13,16 +19,11 @@ const Register = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
-  useEffect(() => {
-    const unSubscription = auth.onAuthStateChanged((user) => {
-      if (user) {
-        navigate("/");
-      }
-    });
-    return () => {
-      unSubscription();
-    };
-  }, []);
+  const { user, login } = useAuthUserContext();
+
+  if (user) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <div>
@@ -64,8 +65,9 @@ const Register = () => {
           size="small"
           onClick={async (e) => {
             try {
-              await createUserWithEmailAndPassword(auth, email, password);
-              navigate("/");
+              const userCredential: UserCredential =
+                await createUserWithEmailAndPassword(auth, email, password);
+              login(userCredential.user, () => navigate("/"));
             } catch (error) {
               if (error instanceof Error) {
                 setError(error?.message);

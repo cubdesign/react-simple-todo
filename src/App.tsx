@@ -3,17 +3,20 @@ import Login from "./Login";
 import Register from "./Register";
 import Todo from "./Todo";
 import "./firebaseConfig";
-import Layout from "./components/Layout";
+import ProtectedLayout from "./components/ProtectedLayout";
+import AuthUserProvider from "./providers/AuthUser";
 
 const App = () => {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Todo />} />
-      </Route>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-    </Routes>
+    <AuthUserProvider>
+      <Routes>
+        <Route element={<ProtectedLayout />}>
+          <Route path="/" element={<Todo />} />
+        </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </AuthUserProvider>
   );
 };
 

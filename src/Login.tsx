@@ -1,12 +1,13 @@
-import { Auth, getAuth } from "firebase/auth";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Auth, getAuth, UserCredential } from "firebase/auth";
+import { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 import FormControl from "@mui/material/FormControl";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import { useAuthUserContext } from "./providers/AuthUser";
 
 const Login = () => {
   const auth: Auth = getAuth();
@@ -14,17 +15,11 @@ const Login = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
-  useEffect(() => {
-    const unSubscription = auth.onAuthStateChanged((user) => {
-      if (user) {
-        navigate("/");
-      }
-    });
-    return () => {
-      unSubscription();
-    };
-  }, []);
+  const { user, login } = useAuthUserContext();
 
+  if (user) {
+    return <Navigate to="/" />;
+  }
   return (
     <div>
       <h1>Login</h1>
@@ -65,8 +60,9 @@ const Login = () => {
           size="small"
           onClick={async (e) => {
             try {
-              await signInWithEmailAndPassword(auth, email, password);
-              navigate("/");
+              const userCredential: UserCredential =
+                await signInWithEmailAndPassword(auth, email, password);
+              login(userCredential.user, () => navigate("/"));
             } catch (error) {
               if (error instanceof Error) {
                 setError(error?.message);

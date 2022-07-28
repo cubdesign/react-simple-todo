@@ -6,13 +6,14 @@ import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { useAuthUserContext } from "../providers/AuthUser";
 
 const Offset = styled("div")(({ theme }) => theme.mixins.toolbar);
 
 const Heater = () => {
   const auth = getAuth();
   const navigate = useNavigate();
-
+  const { logout } = useAuthUserContext();
   return (
     <Box
       sx={{
@@ -35,7 +36,7 @@ const Heater = () => {
             onClick={async () => {
               try {
                 await auth.signOut();
-                navigate("/login");
+                logout(() => navigate("/login"));
               } catch (error) {
                 console.log(error);
               }
