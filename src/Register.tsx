@@ -30,10 +30,28 @@ const Register = () => {
     <div>
       <h1>新規登録</h1>
       <Box
+        component="form"
         sx={{
           display: "flex",
           flexDirection: "column",
           gap: 3,
+        }}
+        onClick={async () => {
+          setError("");
+          if (password !== passwordConfirm) {
+            setError("パスワードが一致しません");
+            return;
+          }
+          try {
+            const userCredential: UserCredential =
+              await createUserWithEmailAndPassword(auth, email, password);
+            login(userCredential.user, () => navigate("/"));
+          } catch (error) {
+            if (error instanceof Error) {
+              setError(error?.message);
+            }
+            console.log(error);
+          }
         }}
       >
         {error && <Alert severity="error">{error}</Alert>}
@@ -73,29 +91,7 @@ const Register = () => {
             onChange={(e) => setPasswordConfirm(e.target.value)}
           />
         </FormControl>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          size="small"
-          onClick={async (e) => {
-            setError("");
-            if (password !== passwordConfirm) {
-              setError("パスワードが一致しません");
-              return;
-            }
-            try {
-              const userCredential: UserCredential =
-                await createUserWithEmailAndPassword(auth, email, password);
-              login(userCredential.user, () => navigate("/"));
-            } catch (error) {
-              if (error instanceof Error) {
-                setError(error?.message);
-              }
-              console.log(error);
-            }
-          }}
-        >
+        <Button type="submit" variant="contained" color="primary" size="small">
           登録
         </Button>
         <Box>

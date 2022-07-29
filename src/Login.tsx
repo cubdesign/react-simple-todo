@@ -24,10 +24,24 @@ const Login = () => {
     <div>
       <h1>ログイン</h1>
       <Box
+        component="form"
         sx={{
           display: "flex",
           flexDirection: "column",
           gap: 3,
+        }}
+        onSubmit={async () => {
+          setError("");
+          try {
+            const userCredential: UserCredential =
+              await signInWithEmailAndPassword(auth, email, password);
+            login(userCredential.user, () => navigate("/"));
+          } catch (error) {
+            if (error instanceof Error) {
+              setError(error?.message);
+            }
+            console.log(error);
+          }
         }}
       >
         {error && <Alert severity="error">{error}</Alert>}
@@ -55,25 +69,7 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </FormControl>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          size="small"
-          onClick={async (e) => {
-            setError("");
-            try {
-              const userCredential: UserCredential =
-                await signInWithEmailAndPassword(auth, email, password);
-              login(userCredential.user, () => navigate("/"));
-            } catch (error) {
-              if (error instanceof Error) {
-                setError(error?.message);
-              }
-              console.log(error);
-            }
-          }}
-        >
+        <Button type="submit" variant="contained" color="primary" size="small">
           ログイン
         </Button>
         <Box>
