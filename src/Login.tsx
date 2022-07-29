@@ -22,7 +22,7 @@ const Login = () => {
   }
   return (
     <div>
-      <h1>Login</h1>
+      <h1>ログイン</h1>
       <Box
         sx={{
           display: "flex",
@@ -37,8 +37,9 @@ const Login = () => {
               shrink: true,
             }}
             name="email"
-            label="E-mail"
+            label="メールアドレス"
             value={email}
+            autoFocus={true}
             onChange={(e) => setEmail(e.target.value)}
           />
         </FormControl>
@@ -48,7 +49,7 @@ const Login = () => {
               shrink: true,
             }}
             name="password"
-            label="Password"
+            label="パスワード"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -59,6 +60,7 @@ const Login = () => {
           color="primary"
           size="small"
           onClick={async (e) => {
+            setError("");
             try {
               const userCredential: UserCredential =
                 await signInWithEmailAndPassword(auth, email, password);
@@ -71,11 +73,11 @@ const Login = () => {
             }
           }}
         >
-          Login
+          ログイン
         </Button>
         <Box>
           <Button size="small" onClick={() => navigate("/register")}>
-            Create new account ?
+            新規登録へ
           </Button>
         </Box>
       </Box>

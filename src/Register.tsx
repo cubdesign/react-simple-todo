@@ -18,6 +18,7 @@ const Register = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [passwordConfirm, setPasswordConfirm] = useState<string>("");
   const [error, setError] = useState<string>("");
   const { user, login } = useAuthUserContext();
 
@@ -27,7 +28,7 @@ const Register = () => {
 
   return (
     <div>
-      <h1>Register</h1>
+      <h1>新規登録</h1>
       <Box
         sx={{
           display: "flex",
@@ -42,8 +43,9 @@ const Register = () => {
               shrink: true,
             }}
             name="email"
-            label="E-mail"
+            label="メールアドレス"
             value={email}
+            autoFocus={true}
             onChange={(e) => setEmail(e.target.value)}
           />
         </FormControl>
@@ -52,11 +54,23 @@ const Register = () => {
             InputLabelProps={{
               shrink: true,
             }}
-            name="password"
-            label="Password"
+            name="new-password"
+            label="パスワード"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+          />
+        </FormControl>
+        <FormControl>
+          <TextField
+            InputLabelProps={{
+              shrink: true,
+            }}
+            name="new-password-confirm"
+            label="パスワード（確認用）"
+            type="password"
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
           />
         </FormControl>
         <Button
@@ -64,6 +78,11 @@ const Register = () => {
           color="primary"
           size="small"
           onClick={async (e) => {
+            setError("");
+            if (password !== passwordConfirm) {
+              setError("パスワードが一致しません");
+              return;
+            }
             try {
               const userCredential: UserCredential =
                 await createUserWithEmailAndPassword(auth, email, password);
@@ -76,11 +95,11 @@ const Register = () => {
             }
           }}
         >
-          Register
+          登録
         </Button>
         <Box>
           <Button size="small" onClick={() => navigate("/login")}>
-            Back to login
+            ログインへ
           </Button>
         </Box>
       </Box>
