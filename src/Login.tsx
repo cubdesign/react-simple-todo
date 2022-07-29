@@ -30,7 +30,8 @@ const Login = () => {
           flexDirection: "column",
           gap: 3,
         }}
-        onSubmit={async () => {
+        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
           setError("");
           try {
             const userCredential: UserCredential =

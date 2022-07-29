@@ -1,6 +1,6 @@
 import FormControl from "@mui/material/FormControl";
 import Box from "@mui/material/Box";
-import { useState } from "react";
+import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
@@ -36,7 +36,8 @@ const Register = () => {
           flexDirection: "column",
           gap: 3,
         }}
-        onClick={async () => {
+        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
           setError("");
           if (password !== passwordConfirm) {
             setError("パスワードが一致しません");
