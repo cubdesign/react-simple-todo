@@ -1,6 +1,6 @@
 import { Auth, getAuth, UserCredential } from "firebase/auth";
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
@@ -74,7 +74,7 @@ const Login = () => {
           ログイン
         </Button>
         <Box>
-          <Button size="small" onClick={() => navigate("/register")}>
+          <Button size="small" component={Link} to="/register">
             新規登録へ
           </Button>
         </Box>

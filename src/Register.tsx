@@ -10,7 +10,7 @@ import {
   createUserWithEmailAndPassword,
   UserCredential,
 } from "firebase/auth";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuthUserContext } from "./providers/AuthUser";
 
 const Register = () => {
@@ -96,7 +96,7 @@ const Register = () => {
           登録
         </Button>
         <Box>
-          <Button size="small" onClick={() => navigate("/login")}>
+          <Button size="small" component={Link} to="/login">
             ログインへ
           </Button>
         </Box>
