@@ -3,7 +3,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 import FormTodo from "./components/FormTodo";
-import TodoBar from "./components/TodoList";
+import TodoBar from "./components/TodoBar";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import {
   addDoc,
@@ -69,6 +69,15 @@ const Todo = () => {
     return true;
   };
 
+  const editTodo = async (id: string, text: string): Promise<boolean> => {
+    await updateDoc(doc(db, "todos", id), {
+      text,
+    });
+    await loadTodos();
+
+    return true;
+  };
+
   const markDone = async (id: string, done: boolean): Promise<boolean> => {
     await updateDoc(doc(db, "todos", id), { done });
     await loadTodos();
@@ -103,6 +112,7 @@ const Todo = () => {
               <TodoBar
                 key={todo.id}
                 todo={todo}
+                editTodo={editTodo}
                 markDone={markDone}
                 removeTodo={removeTodo}
               />
