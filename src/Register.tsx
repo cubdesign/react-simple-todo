@@ -12,19 +12,58 @@ import {
 } from "firebase/auth";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuthUserContext } from "./providers/AuthUser";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+interface IFormInput {
+  email: string;
+  "new-password": string;
+  "confirm-password": string;
+}
+
+const schema = yup.object({
+  email: yup
+    .string()
+    .required("必須です")
+    .email("正しいメールアドレスを入力してください"),
+  "new-password": yup.string().required("必須です"),
+  "confirm-password": yup
+    .string()
+    .oneOf([yup.ref("new-password"), null], "パスワードが一致しません"),
+});
 
 const Register = () => {
   const auth: Auth = getAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [passwordConfirm, setPasswordConfirm] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [serverError, setServerError] = useState<string | null>(null);
   const { user, login } = useAuthUserContext();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IFormInput>({ resolver: yupResolver(schema) });
 
   if (user) {
     return <Navigate to="/" />;
   }
+  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    setServerError(null);
+    try {
+      const userCredential: UserCredential =
+        await createUserWithEmailAndPassword(
+          auth,
+          data.email.trim(),
+          data["new-password"].trim()
+        );
+      login(userCredential.user, () => navigate("/"));
+    } catch (error) {
+      if (error instanceof Error) {
+        setServerError(error.message);
+      }
+      console.log(error);
+    }
+  };
 
   return (
     <div>
@@ -36,36 +75,19 @@ const Register = () => {
           flexDirection: "column",
           gap: 3,
         }}
-        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          setError("");
-          if (password !== passwordConfirm) {
-            setError("パスワードが一致しません");
-            return;
-          }
-          try {
-            const userCredential: UserCredential =
-              await createUserWithEmailAndPassword(auth, email, password);
-            login(userCredential.user, () => navigate("/"));
-          } catch (error) {
-            if (error instanceof Error) {
-              setError(error?.message);
-            }
-            console.log(error);
-          }
-        }}
+        onSubmit={handleSubmit(onSubmit)}
       >
-        {error && <Alert severity="error">{error}</Alert>}
+        {serverError && <Alert severity="error">{serverError}</Alert>}
         <FormControl>
           <TextField
             InputLabelProps={{
               shrink: true,
             }}
-            name="email"
             label="メールアドレス"
-            value={email}
             autoFocus={true}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("email")}
+            error={"email" in errors}
+            helperText={errors["email"]?.message}
           />
         </FormControl>
         <FormControl>
@@ -73,11 +95,11 @@ const Register = () => {
             InputLabelProps={{
               shrink: true,
             }}
-            name="new-password"
             label="パスワード"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("new-password")}
+            error={"new-password" in errors}
+            helperText={errors["new-password"]?.message}
           />
         </FormControl>
         <FormControl>
@@ -85,11 +107,11 @@ const Register = () => {
             InputLabelProps={{
               shrink: true,
             }}
-            name="new-password-confirm"
             label="パスワード（確認用）"
             type="password"
-            value={passwordConfirm}
-            onChange={(e) => setPasswordConfirm(e.target.value)}
+            {...register("confirm-password")}
+            error={"confirm-password" in errors}
+            helperText={errors["confirm-password"]?.message}
           />
         </FormControl>
         <Button type="submit" variant="contained" color="primary" size="small">

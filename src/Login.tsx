@@ -1,5 +1,4 @@
 import { Auth, getAuth, UserCredential } from "firebase/auth";
-import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Box from "@mui/material/Box";
@@ -8,18 +7,55 @@ import FormControl from "@mui/material/FormControl";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { useAuthUserContext } from "./providers/AuthUser";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useState } from "react";
+interface IFormInput {
+  email: string;
+  password: string;
+}
+
+const schema = yup.object({
+  email: yup
+    .string()
+    .required("必須です")
+    .email("正しいメールアドレスを入力してください"),
+  password: yup.string().required("必須です"),
+});
 
 const Login = () => {
   const auth: Auth = getAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
   const { user, login } = useAuthUserContext();
+  const [serverError, setServerError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IFormInput>({ resolver: yupResolver(schema) });
 
   if (user) {
     return <Navigate to="/" />;
   }
+
+  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    setServerError(null);
+    try {
+      const userCredential: UserCredential = await signInWithEmailAndPassword(
+        auth,
+        data.email.trim(),
+        data.password.trim()
+      );
+      login(userCredential.user, () => navigate("/"));
+    } catch (error) {
+      if (error instanceof Error) {
+        setServerError(error.message);
+      }
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <h1>ログイン</h1>
@@ -30,32 +66,19 @@ const Login = () => {
           flexDirection: "column",
           gap: 3,
         }}
-        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          setError("");
-          try {
-            const userCredential: UserCredential =
-              await signInWithEmailAndPassword(auth, email, password);
-            login(userCredential.user, () => navigate("/"));
-          } catch (error) {
-            if (error instanceof Error) {
-              setError(error?.message);
-            }
-            console.log(error);
-          }
-        }}
+        onSubmit={handleSubmit(onSubmit)}
       >
-        {error && <Alert severity="error">{error}</Alert>}
+        {serverError && <Alert severity="error">{serverError}</Alert>}
         <FormControl>
           <TextField
             InputLabelProps={{
               shrink: true,
             }}
-            name="email"
             label="メールアドレス"
-            value={email}
             autoFocus={true}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("email")}
+            error={"email" in errors}
+            helperText={errors["email"]?.message}
           />
         </FormControl>
         <FormControl>
@@ -63,11 +86,11 @@ const Login = () => {
             InputLabelProps={{
               shrink: true,
             }}
-            name="password"
             label="パスワード"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("password")}
+            error={"password" in errors}
+            helperText={errors["password"]?.message}
           />
         </FormControl>
         <Button type="submit" variant="contained" color="primary" size="small">
